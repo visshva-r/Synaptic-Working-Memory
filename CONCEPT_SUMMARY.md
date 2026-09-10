@@ -1,6 +1,6 @@
 # Synaptic plasticity as short-term memory — one-page concept summary
 
-**DataForge 2026 · Pathway track · Team think loop (solo)**  
+**DataForge 2026 · Pathway track · Team Think Loop (solo)**  
 **Central claim:** A fixed-shape synaptic state can process a stream of unbounded length without allocating a new memory slot per token, but similar cues interfere and can retrieve the wrong association.
 
 ## Design pressure

@@ -3,87 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Synaptic Working Memory — DataForge 2026</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet" />
+  <title>Synaptic Working Memory</title>
   <style>
     :root {
-      --ink: #14201a;
-      --muted: #4a5c52;
-      --paper: #f3efe6;
-      --panel: #fffdf8;
-      --line: #c9d0c4;
-      --kv: #1f5f8b;
-      --kv-soft: #d7e8f3;
-      --syn: #8a3b12;
-      --syn-soft: #f3e0d2;
-      --ok: #1f6b3a;
+      --ink: #1a1f1c;
+      --muted: #5c6660;
+      --paper: #fafafa;
+      --panel: #fff;
+      --line: #ddd;
+      --kv: #1e4a6e;
+      --kv-soft: #e8f0f6;
+      --syn: #7a3b18;
+      --syn-soft: #f5ebe3;
+      --ok: #166534;
       --warn: #9a3412;
-      --accent: #0f766e;
+      --accent: #0d5c55;
     }
 
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: "Source Serif 4", Georgia, serif;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       color: var(--ink);
-      background:
-        radial-gradient(1200px 600px at 10% -10%, #e8f0ea 0%, transparent 55%),
-        radial-gradient(900px 500px at 100% 0%, #f5e6d8 0%, transparent 50%),
-        var(--paper);
-      line-height: 1.55;
+      background: var(--paper);
+      line-height: 1.6;
+      font-size: 16px;
     }
 
-    .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 18px 80px; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 64px; }
 
-    .eyebrow {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin: 0 0 10px;
+    .lede {
+      font-size: 0.95rem;
+      color: var(--muted);
+      max-width: 58ch;
+      margin: 0 0 24px;
     }
 
     h1 {
-      font-size: clamp(1.7rem, 3.2vw, 2.45rem);
-      line-height: 1.15;
-      margin: 0 0 12px;
-      font-weight: 700;
-      max-width: 18ch;
+      font-size: clamp(1.75rem, 3vw, 2.25rem);
+      line-height: 1.2;
+      margin: 0 0 16px;
+      font-weight: 650;
+      letter-spacing: -0.02em;
     }
 
     .claim {
-      font-size: 1.12rem;
-      max-width: 62ch;
-      margin: 0 0 18px;
-      border-left: 3px solid var(--accent);
-      padding-left: 14px;
-    }
-
-    .meta {
-      display: flex; flex-wrap: wrap; gap: 8px 14px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 28px;
-    }
-
-    .badge {
-      background: #e7efe9;
+      font-size: 1.05rem;
+      max-width: 58ch;
+      margin: 0 0 12px;
+      padding: 14px 16px;
+      background: var(--panel);
       border: 1px solid var(--line);
-      padding: 4px 8px;
-      border-radius: 4px;
+      border-radius: 6px;
     }
 
     .lab {
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 16px;
-      box-shadow: 0 10px 30px rgba(20, 32, 26, 0.05);
+      border-radius: 6px;
+      padding: 18px;
     }
 
     .lab-head {
@@ -97,7 +76,7 @@
     }
 
     .live-dot {
-      font-family: "IBM Plex Mono", monospace;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
       font-size: 12px;
       color: var(--ok);
     }
@@ -128,19 +107,17 @@
 
     label {
       display: block;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 11px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
       margin-bottom: 6px;
     }
 
     input[type="range"] { width: 100%; accent-color: var(--accent); }
     .val {
-      font-family: "IBM Plex Mono", monospace;
+      font-family: ui-monospace, Consolas, monospace;
       font-size: 12px;
-      color: var(--ink);
+      color: var(--muted);
     }
 
     .panels {
@@ -163,11 +140,8 @@
     .panel.syn .panel-title { background: var(--syn-soft); color: var(--syn); }
 
     .panel-title {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
       padding: 10px 12px;
       border-bottom: 1px solid var(--line);
     }
@@ -185,7 +159,7 @@
 
     .readout {
       margin-top: 10px;
-      font-family: "IBM Plex Mono", monospace;
+      font-family: ui-monospace, Consolas, monospace;
       font-size: 12px;
       display: grid;
       gap: 4px;
@@ -205,8 +179,8 @@
       margin: 12px 0 4px;
     }
     button {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
+      font-family: inherit;
+      font-size: 13px;
       border: 1px solid var(--line);
       background: #fff;
       color: var(--ink);
@@ -223,8 +197,7 @@
 
     .stream {
       margin-top: 10px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
+      font-size: 13px;
       color: var(--muted);
     }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
@@ -258,8 +231,7 @@
     .card h3 {
       margin: 0 0 8px;
       font-size: 1rem;
-      font-family: "IBM Plex Mono", monospace;
-      letter-spacing: 0.03em;
+      font-weight: 600;
     }
 
     table {
@@ -275,7 +247,7 @@
       text-align: left;
       vertical-align: top;
     }
-    th { background: #eef2ec; font-family: "IBM Plex Mono", monospace; font-size: 12px; }
+    th { background: #f0f0f0; font-size: 13px; font-weight: 600; }
 
     .warn-box {
       border: 1px solid #e7b8a8;
@@ -286,31 +258,14 @@
       max-width: 70ch;
     }
 
-    .guide {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin: 0 0 18px;
-    }
-    @media (max-width: 820px) {
-      .guide { grid-template-columns: 1fr 1fr; }
-    }
-    .guide-step {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 10px 12px;
+    .steps {
+      margin: 0 0 20px;
+      padding-left: 1.25rem;
+      color: var(--muted);
       font-size: 0.92rem;
+      max-width: 58ch;
     }
-    .guide-step strong {
-      display: block;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 11px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 4px;
-    }
+    .steps li { margin-bottom: 4px; }
 
     .predict {
       margin: 0 0 14px;
@@ -318,7 +273,7 @@
       border-radius: 8px;
       border: 1px solid var(--line);
       background: #eef6f4;
-      font-family: "IBM Plex Mono", monospace;
+      font-family: ui-monospace, Consolas, monospace;
       font-size: 12.5px;
       line-height: 1.45;
     }
@@ -336,7 +291,7 @@
 
     .mass {
       margin-top: 10px;
-      font-family: "IBM Plex Mono", monospace;
+      font-family: ui-monospace, Consolas, monospace;
       font-size: 11px;
     }
     .mass-row {
@@ -363,9 +318,9 @@
     .mass-fill.green { background: #15803d; }
 
     .eq-box {
-      font-family: "IBM Plex Mono", monospace;
+      font-family: ui-monospace, Consolas, monospace;
       font-size: 0.9rem;
-      background: #f6f7f4;
+      background: #f5f5f5;
       border: 1px solid var(--line);
       border-radius: 6px;
       padding: 10px 12px;
@@ -377,35 +332,32 @@
       margin-top: 48px;
       padding-top: 16px;
       border-top: 1px solid var(--line);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
+      font-size: 13px;
       color: var(--muted);
     }
+    footer a { color: var(--accent); }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <p class="eyebrow">DataForge 2026 · Pathway track · Solo submission</p>
     <h1>Synaptic working memory</h1>
     <p class="claim">
-      <strong>Claim:</strong> a fixed-shape synaptic state can absorb a stream of any length without allocating a new memory slot for every token, but a later similar cue can retrieve the wrong association when two writes interfere.
+      A fixed-shape synaptic state can absorb a stream of any length without allocating a new memory slot for every token, but a later similar cue can retrieve the wrong association when two writes interfere.
     </p>
-    <div class="meta">
-      <span class="badge">Audience: data scientists new to post-Transformer memory</span>
-      <span class="badge">Topic: synaptic plasticity as short-term memory</span>
-      <span class="badge">Toy model · not official BDH weights</span>
-    </div>
+    <p class="lede">
+      Interactive explainer for readers who know KV caching. Teaching toy only; not official BDH or BDH-CQ weights.
+    </p>
 
-    <div class="guide" aria-label="Learning path">
-      <div class="guide-step"><strong>1 · Claim</strong> Fixed memory can run forever — until similar writes collide.</div>
-      <div class="guide-step"><strong>2 · Watch</strong> Preset writes A once, then overlapping B twice.</div>
-      <div class="guide-step"><strong>3 · Falsify</strong> Theory predicts the flip; drag similarity across s*.</div>
-      <div class="guide-step"><strong>4 · Place</strong> Map the toy onto BDH synaptic memory — as a toy.</div>
-    </div>
+    <ol class="steps" aria-label="How to use this page">
+      <li>Watch the preset stream finish.</li>
+      <li>Probe cue A at high similarity; compare KV vs synaptic readouts.</li>
+      <li>Drag similarity across the predicted crossover s*.</li>
+      <li>Scroll to the BDH section to see where the mechanism appears in the literature.</li>
+    </ol>
 
     <div class="lab" id="lab">
       <div class="lab-head">
-        <h2>Live lab — already running</h2>
+        <h2>Interactive lab</h2>
         <div class="live-dot">preset stream writing now</div>
       </div>
 
@@ -460,7 +412,7 @@
           </div>
         </div>
         <div class="panel syn">
-          <div class="panel-title">Fixed synaptic state — trace competition below</div>
+          <div class="panel-title">Fixed synaptic state (trace competition below)</div>
           <div class="panel-body">
             <canvas id="synCanvas" width="480" height="220"></canvas>
             <div class="readout" id="synReadout"></div>
@@ -481,7 +433,7 @@
         The left panel stores one explicit <em>(key, value)</em> slot per fact. Memory length grows with the stream.
         The right panel keeps a fixed <em>d×d</em> association matrix and updates it with a Hebbian write:
       </p>
-      <p style="font-family:'IBM Plex Mono',monospace; font-size:0.95rem;">
+      <p style="font-family:ui-monospace,Consolas,monospace; font-size:0.95rem;">
         W ← (1 − γ) W + η · (k ⊗ v)
       </p>
       <p>
@@ -496,8 +448,7 @@
         confidently wrong rather than merely uncertain.
       </p>
       <div class="warn-box">
-        <strong>Honesty label.</strong> This is an independent teaching toy. It is <em>not</em> an official BDH or BDH-CQ checkpoint,
-        and it is not a Mamba-style state-space model. It isolates one mechanism — synaptic / fast-weight memory — so you can falsify the claim above by moving the similarity slider.
+        <strong>Scope.</strong> Independent teaching toy. Not an official BDH or BDH-CQ checkpoint, and not a Mamba-style state-space model. The lab isolates synaptic / fast-weight memory so you can falsify the claim by moving the similarity slider.
       </div>
     </section>
 
@@ -513,7 +464,7 @@
 
       <div class="eq-box">
         Toy (this page): W ← (1−γ)W + η (k ⊗ v), read = Wq<br/>
-        BDH (paper): attention / association as synaptic state updated by Hebbian co-activation during reading — same idea family, not the same equations or trained graph.
+        BDH (paper): attention / association as synaptic state updated by Hebbian co-activation during reading. Same idea family, not the same equations or trained graph.
       </div>
 
       <table>
@@ -557,13 +508,13 @@
             Same family, different adaptation story: learning from demonstrations and reasoning without a written chain of thought,
             with adaptation in recurrent state rather than evaluation-time parameter updates
             <a href="https://arxiv.org/abs/2608.09888" target="_blank" rel="noopener">arXiv:2608.09888</a>.
-            CQ’s recurrent-state adaptation faces related capacity trade-offs, but its demonstration→latent-reasoning path is distinct from Hebbian outer-product writes — the fixed-state failure mode here is illustrative, not identical.
+            CQ’s recurrent-state adaptation faces related capacity trade-offs, but its demonstration→latent-reasoning path is distinct from Hebbian outer-product writes. The fixed-state failure mode here is illustrative, not identical.
             Do not collapse BDH-CQ into “just Hebbian writes.”
           </p>
         </div>
       </div>
       <p style="margin-top:14px;">
-        Deeper walkthroughs from Pathway:
+        Further reading (Pathway):
         <a href="https://pathway.com/research/bdh-explainer/bdh-architecture-derivation" target="_blank" rel="noopener">From Attention to Synapses</a>,
         <a href="https://pathway.com/research/bdh-explainer/brain-inspired-ai-architecture" target="_blank" rel="noopener">Why BDH Uses a Brain-Inspired Architecture</a>,
         <a href="https://pathway.com/research/the-equations-of-reasoning" target="_blank" rel="noopener">The Equations of Reasoning</a>,
@@ -579,29 +530,29 @@
           A single overlapping write does not flip the answer. Because a cue matches its own key at 1.0 and an overlapping
           key at only <em>s &lt; 1</em>, one competing write can lower confidence but cannot win. This preset writes the
           overlapping key twice so accumulated mass can beat the decayed original. Interference needs repetition or decay,
-          not just similarity — the earlier version of this page overstated that, and the stream was rebuilt to match.
+          not similarity alone.
         </li>
         <li>Low-dimensional keys exaggerate interference; real models use higher capacity and learned geometries.</li>
         <li>The toy ignores sparsity, inhibition, and scale-free connectivity that BDH emphasizes.</li>
         <li>Soft attention in a KV cache can also bleed; the left panel uses sharp nearest-key retrieval to show the <em>allocation</em> difference cleanly.</li>
-        <li>Published BDH results and this simulation are different evidence levels — do not treat one as the other.</li>
+        <li>Published BDH results and this simulation are different evidence levels. Do not treat one as the other.</li>
       </ul>
     </section>
 
     <section>
       <h2>Sixty-second test</h2>
       <ol>
-        <li>Leave similarity at 0.72. Read the green/red theory banner first — it should already predict WRONG — then confirm synaptic <strong>BLUE</strong>, KV <strong>RED</strong>.</li>
+        <li>Leave similarity at 0.72. Read the theory banner first (it should predict wrong), then confirm synaptic <strong>BLUE</strong> and KV <strong>RED</strong>.</li>
         <li>Drag similarity down through the live <em>s*</em> value. The banner and the synaptic label should flip together.</li>
         <li>Land on 0.10. Both sides read RED. Sweep η at 0.72: answer stays BLUE (η cancels).</li>
-        <li>Raise γ and watch <em>s*</em> fall — decay makes the fixed state fail earlier. Then explain the claim in your own words.</li>
+        <li>Raise γ and watch <em>s*</em> fall. Decay makes the fixed state fail earlier. Then explain the claim in your own words.</li>
       </ol>
       <p class="muted">
         The crossover is a property of this preset, not a universal constant. For this stream it is exactly
         <em>s* = u<sup>4</sup> / (u<sup>2</sup> + 1)</em> with <em>u = 1 − γ</em>: 0.500 at γ = 0, 0.388 at γ = 0.08,
         0.203 at γ = 0.25. Raising decay makes the fixed state fail <em>earlier</em>, because the original trace fades
-        faster than the repeated ones. Changing <strong>η</strong> moves nothing — it scales both traces equally, so the
-        two sides cross at the same place. Try it: the answer at 0.72 stays BLUE at every η.
+        faster than the repeated ones. Changing <strong>η</strong> moves nothing: it scales both traces equally, so the
+        two sides cross at the same place. At 0.72 the answer stays BLUE at every η.
       </p>
     </section>
 
@@ -626,7 +577,7 @@
           </tr>
           <tr>
             <td><a href="https://arxiv.org/abs/2312.00752" target="_blank" rel="noopener">Mamba (Gu & Dao, 2023)</a></td>
-            <td>Contrast: selective SSM state — related long-context idea, different mechanism; PS forbids calling BDH a Mamba SSM.</td>
+            <td>Contrast: selective SSM state. Related long-context idea, different mechanism; do not call BDH a Mamba SSM.</td>
           </tr>
           <tr>
             <td><a href="https://arxiv.org/abs/2404.07143" target="_blank" rel="noopener">xLSTM (Beck et al., 2024)</a></td>
@@ -637,8 +588,9 @@
     </section>
 
     <footer>
-      DataForge 2026 Pathway submission · team think loop (solo) ·
-      AI-assisted coding disclosed in README · equations verified against primary papers before claims were written.
+      Built by <strong>Think Loop</strong> for DataForge 2026 (Pathway track).
+      <a href="https://github.com/visshva-r/Synaptic-Working-Memory">Source</a> ·
+      AI assistance disclosed in README · teaching toy, not official BDH weights.
     </footer>
   </div>
 
@@ -808,7 +760,7 @@
       ctx.fillStyle = "#fafafa";
       ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = "#4a5c52";
-      ctx.font = "14px IBM Plex Mono, monospace";
+      ctx.font = "14px ui-monospace, Consolas, monospace";
       ctx.fillText(`slots: ${state.kv.length} (grows with stream)`, 12, 22);
 
       const slotW = 52, slotH = 70, startX = 20, y = 60;
@@ -821,7 +773,7 @@
         ctx.fillRect(x, y, slotW, slotH);
         ctx.strokeRect(x, y, slotW, slotH);
         ctx.fillStyle = "#1f5f8b";
-        ctx.font = "12px IBM Plex Mono, monospace";
+        ctx.font = "12px ui-monospace, Consolas, monospace";
         ctx.fillText(item.keyName, x + 18, y + 28);
         ctx.fillText(item.valueName.slice(0, 3), x + 12, y + 50);
       });
@@ -837,7 +789,7 @@
       ctx.fillStyle = "#fafafa";
       ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = "#4a5c52";
-      ctx.font = "14px IBM Plex Mono, monospace";
+      ctx.font = "14px ui-monospace, Consolas, monospace";
       ctx.fillText(`W shape: ${DIM}×${DIM} (fixed)`, 12, 22);
 
       const cell = Math.min(18, Math.floor((Math.min(w, h) - 50) / DIM));
@@ -857,7 +809,7 @@
         }
       }
       ctx.fillStyle = "#8a3b12";
-      ctx.font = "12px IBM Plex Mono, monospace";
+      ctx.font = "12px ui-monospace, Consolas, monospace";
       ctx.fillText("darker = stronger synapse", ox, oy + DIM * cell + 18);
     }
 
@@ -897,7 +849,7 @@
       el.className = "predict " + (predictsWrong ? "wrong" : "right");
       el.innerHTML = predictsWrong
         ? `Theory prediction: synaptic should retrieve the <strong>WRONG</strong> association (BLUE) for cue A.<br/>
-           <span class="formula">s=${sim.toFixed(2)} &gt; s*=${sStar.toFixed(3)} (γ=${gamma.toFixed(2)}). η cancels — it cannot move s*.</span>`
+           <span class="formula">s=${sim.toFixed(2)} &gt; s*=${sStar.toFixed(3)} (γ=${gamma.toFixed(2)}). η cancels; it cannot move s*.</span>`
         : `Theory prediction: synaptic should <strong>recover RED</strong> for cue A.<br/>
            <span class="formula">s=${sim.toFixed(2)} ≤ s*=${sStar.toFixed(3)} (γ=${gamma.toFixed(2)}). Drag s across s* to falsify the claim.</span>`;
     }
@@ -961,7 +913,7 @@
         if (state.autoIndex >= FACTS.length) {
           stopAuto();
           live.classList.add("live-dot--idle");
-          live.textContent = "preset complete — now drag key similarity";
+          live.textContent = "preset complete. Drag key similarity.";
           return;
         }
         writeFact(FACTS[state.autoIndex]);

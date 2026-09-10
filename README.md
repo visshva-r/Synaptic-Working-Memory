@@ -1,7 +1,7 @@
-# Synaptic Working Memory — DataForge 2026 (Pathway)
+# Synaptic Working Memory
 
-**Team:** think loop (solo)  
-**Track:** Pathway — Explain the Frontier  
+**Team:** Think Loop (solo)  
+**Event:** DataForge 2026 · Pathway track  
 **Topic:** Synaptic plasticity as short-term memory  
 
 | | |
@@ -104,12 +104,12 @@ BDH-CQ is related but not identical: treat it as the same research family with a
 - Official toy code: https://github.com/pathwaycom/bdh
 - Contrast papers: LoRA (2022), Mamba (2023), xLSTM (2024) — linked in `index.html`
 
-## Package checklist (Unstop)
+## Package checklist
 
-- [ ] Public artifact URL (GitHub Pages or equivalent, no sign-in)
-- [ ] Public source repository
-- [ ] Blog PDF (`BLOG.md` → export PDF)
-- [ ] One-page concept summary PDF (`CONCEPT_SUMMARY.md` → export PDF)
+- [x] Public artifact URL (GitHub Pages)
+- [x] Public source repository
+- [x] Blog PDF
+- [x] One-page concept summary PDF
 - [x] README (this file)
 - [x] AI / license disclosure (below)
 - [x] ≥3 recent primary papers cited beside claims
@@ -126,7 +126,7 @@ BDH-CQ is related but not identical: treat it as the same research family with a
 Code in this repository: MIT (see below). Papers and Pathway blog content remain under their respective licenses; cite, do not republish wholesale.
 
 ```
-MIT License — Copyright (c) 2026 think loop / Visshva R
+MIT License. Copyright (c) 2026 Think Loop / Visshva R
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

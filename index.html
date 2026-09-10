@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synaptic Working Memory — DataForge 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #14201a;
+      --muted: #4a5c52;
+      --paper: #f3efe6;
+      --panel: #fffdf8;
+      --line: #c9d0c4;
+      --kv: #1f5f8b;
+      --kv-soft: #d7e8f3;
+      --syn: #8a3b12;
+      --syn-soft: #f3e0d2;
+      --ok: #1f6b3a;
+      --warn: #9a3412;
+      --accent: #0f766e;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Source Serif 4", Georgia, serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #e8f0ea 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #f5e6d8 0%, transparent 50%),
+        var(--paper);
+      line-height: 1.55;
+    }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 18px 80px; }
+
+    .eyebrow {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 10px;
+    }
+
+    h1 {
+      font-size: clamp(1.7rem, 3.2vw, 2.45rem);
+      line-height: 1.15;
+      margin: 0 0 12px;
+      font-weight: 700;
+      max-width: 18ch;
+    }
+
+    .claim {
+      font-size: 1.12rem;
+      max-width: 62ch;
+      margin: 0 0 18px;
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+    }
+
+    .meta {
+      display: flex; flex-wrap: wrap; gap: 8px 14px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .badge {
+      background: #e7efe9;
+      border: 1px solid var(--line);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .lab {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(20, 32, 26, 0.05);
+    }
+
+    .lab-head {
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px;
+      margin-bottom: 12px; align-items: baseline;
+    }
+
+    .lab-head h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .live-dot {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: var(--ok);
+    }
+    .live-dot::before {
+      content: "";
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--ok);
+      margin-right: 6px;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    .live-dot.live-dot--idle::before {
+      animation: none;
+      opacity: 0.4;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .val {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: var(--ink);
+    }
+
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 820px) {
+      .panels { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      min-height: 280px;
+    }
+    .panel.kv .panel-title { background: var(--kv-soft); color: var(--kv); }
+    .panel.syn .panel-title { background: var(--syn-soft); color: var(--syn); }
+
+    .panel-title {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-body { padding: 12px; }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fafafa;
+    }
+
+    .readout {
+      margin-top: 10px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .truth-row {
+      display: flex; justify-content: space-between; gap: 8px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      background: #f6f7f4;
+    }
+    .truth-row.gap-bad { background: #fde8e4; color: var(--warn); }
+    .truth-row.gap-ok { background: #e7f5ec; color: var(--ok); }
+
+    .actions {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin: 12px 0 4px;
+    }
+    button {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button.primary {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+    button:hover { filter: brightness(0.97); }
+
+    .stream {
+      margin-top: 10px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 9px;
+      background: #fff;
+      color: var(--ink);
+    }
+    .chip.active { outline: 2px solid var(--accent); }
+
+    section { margin-top: 42px; }
+    section h2 { margin: 0 0 10px; font-size: 1.35rem; }
+    section p, section li { max-width: 68ch; color: var(--ink); }
+    .muted { color: var(--muted); }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    @media (max-width: 720px) { .compare { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.03em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      margin-top: 10px;
+      background: var(--panel);
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #eef2ec; font-family: "IBM Plex Mono", monospace; font-size: 12px; }
+
+    .warn-box {
+      border: 1px solid #e7b8a8;
+      background: #fff4ef;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+      max-width: 70ch;
+    }
+
+    .guide {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 0 0 18px;
+    }
+    @media (max-width: 820px) {
+      .guide { grid-template-columns: 1fr 1fr; }
+    }
+    .guide-step {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.92rem;
+    }
+    .guide-step strong {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .predict {
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #eef6f4;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+    .predict.wrong {
+      background: #fde8e4;
+      border-color: #e7b8a8;
+      color: var(--warn);
+    }
+    .predict.right {
+      background: #e7f5ec;
+      border-color: #b7dcc4;
+      color: var(--ok);
+    }
+    .predict .formula { color: var(--muted); margin-top: 4px; }
+
+    .mass {
+      margin-top: 10px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+    }
+    .mass-row {
+      display: grid;
+      grid-template-columns: 52px 1fr 48px;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .mass-track {
+      height: 10px;
+      background: #eceee9;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .mass-fill {
+      height: 100%;
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+    .mass-fill.red { background: #b91c1c; }
+    .mass-fill.blue { background: #1d4ed8; }
+    .mass-fill.green { background: #15803d; }
+
+    .eq-box {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.9rem;
+      background: #f6f7f4;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    a { color: var(--accent); }
+    footer {
+      margin-top: 48px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">DataForge 2026 · Pathway track · Solo submission</p>
+    <h1>Synaptic working memory</h1>
+    <p class="claim">
+      <strong>Claim:</strong> a fixed-shape synaptic state can absorb a stream of any length without allocating a new memory slot for every token, but a later similar cue can retrieve the wrong association when two writes interfere.
+    </p>
+    <div class="meta">
+      <span class="badge">Audience: data scientists new to post-Transformer memory</span>
+      <span class="badge">Topic: synaptic plasticity as short-term memory</span>
+      <span class="badge">Toy model · not official BDH weights</span>
+    </div>
+
+    <div class="guide" aria-label="Learning path">
+      <div class="guide-step"><strong>1 · Claim</strong> Fixed memory can run forever — until similar writes collide.</div>
+      <div class="guide-step"><strong>2 · Watch</strong> Preset writes A once, then overlapping B twice.</div>
+      <div class="guide-step"><strong>3 · Falsify</strong> Theory predicts the flip; drag similarity across s*.</div>
+      <div class="guide-step"><strong>4 · Place</strong> Map the toy onto BDH synaptic memory — as a toy.</div>
+    </div>
+
+    <div class="lab" id="lab">
+      <div class="lab-head">
+        <h2>Live lab — already running</h2>
+        <div class="live-dot">preset stream writing now</div>
+      </div>
+
+      <div id="predict" class="predict" aria-live="polite">
+        Computing theory prediction…
+      </div>
+
+      <div class="controls">
+        <div>
+          <label for="similarity">Key similarity (A ↔ B)</label>
+          <input id="similarity" type="range" min="0" max="100" value="72" />
+          <div class="val"><span id="similarityVal">0.72</span> · higher → more interference</div>
+        </div>
+        <div>
+          <label for="eta">Write strength η</label>
+          <input id="eta" type="range" min="5" max="100" value="55" />
+          <div class="val"><span id="etaVal">0.55</span></div>
+        </div>
+        <div>
+          <label for="gamma">Decay γ (forget)</label>
+          <input id="gamma" type="range" min="0" max="40" value="8" />
+          <div class="val"><span id="gammaVal">0.08</span></div>
+        </div>
+        <div>
+          <label for="probe">Probe cue</label>
+          <select id="probe" style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--line); font-family:inherit;">
+            <option value="A">Cue A → expect RED</option>
+            <option value="B">Cue B → expect BLUE</option>
+            <option value="C">Cue C → expect GREEN</option>
+          </select>
+          <div class="val">ground truth shown beside each estimate</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="btnReplay">Replay preset</button>
+        <button id="btnStep">Write next fact</button>
+        <button id="btnReset">Clear memories</button>
+      </div>
+
+      <div class="stream">
+        Stream of facts written so far:
+        <div class="chips" id="chips"></div>
+      </div>
+
+      <div class="panels" style="margin-top:14px;">
+        <div class="panel kv">
+          <div class="panel-title">Growing KV cache (Transformer-style)</div>
+          <div class="panel-body">
+            <canvas id="kvCanvas" width="480" height="220"></canvas>
+            <div class="readout" id="kvReadout"></div>
+          </div>
+        </div>
+        <div class="panel syn">
+          <div class="panel-title">Fixed synaptic state — trace competition below</div>
+          <div class="panel-body">
+            <canvas id="synCanvas" width="480" height="220"></canvas>
+            <div class="readout" id="synReadout"></div>
+            <div class="mass" id="massBars" hidden>
+              <div>Trace masses at this probe (why the label wins)</div>
+              <div class="mass-row"><span>RED</span><div class="mass-track"><div class="mass-fill red" id="massRed"></div></div><span id="massRedVal">0</span></div>
+              <div class="mass-row"><span>BLUE</span><div class="mass-track"><div class="mass-fill blue" id="massBlue"></div></div><span id="massBlueVal">0</span></div>
+              <div class="mass-row"><span>GREEN</span><div class="mass-track"><div class="mass-fill green" id="massGreen"></div></div><span id="massGreenVal">0</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2>What just happened</h2>
+      <p>
+        The left panel stores one explicit <em>(key, value)</em> slot per fact. Memory length grows with the stream.
+        The right panel keeps a fixed <em>d×d</em> association matrix and updates it with a Hebbian write:
+      </p>
+      <p style="font-family:'IBM Plex Mono',monospace; font-size:0.95rem;">
+        W ← (1 − γ) W + η · (k ⊗ v)
+      </p>
+      <p>
+        Reading with cue <em>q</em> returns <em>W q</em>. The preset writes <em>A→RED</em> once, early, then writes the
+        overlapping key <em>B→BLUE</em> twice, later. Probing A sums every write weighted by how much its key overlaps A:
+        RED arrives once and has decayed, BLUE arrives twice at strength <em>s</em> each. Past a similarity of roughly
+        <strong>0.39</strong> the BLUE mass wins outright, so the fixed state answers <strong>BLUE</strong> to a cue whose
+        true value is RED. The KV panel still answers RED, because it kept A its own slot.
+      </p>
+      <p>
+        That is the whole lesson: the synaptic side never allocated a slot per token, and the price is a retrieval that is
+        confidently wrong rather than merely uncertain.
+      </p>
+      <div class="warn-box">
+        <strong>Honesty label.</strong> This is an independent teaching toy. It is <em>not</em> an official BDH or BDH-CQ checkpoint,
+        and it is not a Mamba-style state-space model. It isolates one mechanism — synaptic / fast-weight memory — so you can falsify the claim above by moving the similarity slider.
+      </div>
+    </section>
+
+    <section>
+      <h2>Where this shows up in BDH</h2>
+      <p>
+        In Dragon Hatchling (BDH), working memory during inference is not a growing token cache alone.
+        The paper describes synaptic plasticity with Hebbian learning: co-active neurons strengthen a connection,
+        so recent associations live in the wiring itself for a short horizon
+        (<a href="https://arxiv.org/abs/2509.26507" target="_blank" rel="noopener">Kosowski et al., arXiv:2509.26507</a>).
+        That is the design pressure this explainer isolates: where does the association live, and what fails when capacity is fixed?
+      </p>
+
+      <div class="eq-box">
+        Toy (this page): W ← (1−γ)W + η (k ⊗ v), read = Wq<br/>
+        BDH (paper): attention / association as synaptic state updated by Hebbian co-activation during reading — same idea family, not the same equations or trained graph.
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Question</th><th>This toy</th><th>BDH (reported)</th><th>BDH-CQ</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Where does short-horizon memory live?</td>
+            <td>Fixed d×d matrix of associations</td>
+            <td>Synaptic / fast state in the neuron graph</td>
+            <td>Recurrent state; not “Hebbian slider only”</td>
+          </tr>
+          <tr>
+            <td>What fails first?</td>
+            <td>Interference under similar cues + decay</td>
+            <td>Capacity / interference trade-offs in associative state</td>
+            <td>Different: demonstration → latent reasoning path</td>
+          </tr>
+          <tr>
+            <td>Evidence level here</td>
+            <td>Exact closed-form on a hand-built stream</td>
+            <td>Author-reported architecture + public educational code</td>
+            <td>Author-reported technical report</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="compare" style="margin-top:14px;">
+        <div class="card">
+          <h3>BDH</h3>
+          <p class="muted" style="margin:0;">
+            Attention reformulated as synaptic memory that updates as the model reads.
+            Reported sparse non-negative activations and monosemantic synapses at the concept level.
+            GPU-friendly formulations exist; the public toy code is educational, not the full production stack.
+          </p>
+        </div>
+        <div class="card">
+          <h3>BDH-CQ</h3>
+          <p class="muted" style="margin:0;">
+            Same family, different adaptation story: learning from demonstrations and reasoning without a written chain of thought,
+            with adaptation in recurrent state rather than evaluation-time parameter updates
+            <a href="https://arxiv.org/abs/2608.09888" target="_blank" rel="noopener">arXiv:2608.09888</a>.
+            CQ’s recurrent-state adaptation faces related capacity trade-offs, but its demonstration→latent-reasoning path is distinct from Hebbian outer-product writes — the fixed-state failure mode here is illustrative, not identical.
+            Do not collapse BDH-CQ into “just Hebbian writes.”
+          </p>
+        </div>
+      </div>
+      <p style="margin-top:14px;">
+        Deeper walkthroughs from Pathway:
+        <a href="https://pathway.com/research/bdh-explainer/bdh-architecture-derivation" target="_blank" rel="noopener">From Attention to Synapses</a>,
+        <a href="https://pathway.com/research/bdh-explainer/brain-inspired-ai-architecture" target="_blank" rel="noopener">Why BDH Uses a Brain-Inspired Architecture</a>,
+        <a href="https://pathway.com/research/the-equations-of-reasoning" target="_blank" rel="noopener">The Equations of Reasoning</a>,
+        and the official toy implementation
+        <a href="https://github.com/pathwaycom/bdh" target="_blank" rel="noopener">github.com/pathwaycom/bdh</a>.
+      </p>
+    </section>
+
+    <section>
+      <h2>Limitations you should keep</h2>
+      <ul>
+        <li>
+          A single overlapping write does not flip the answer. Because a cue matches its own key at 1.0 and an overlapping
+          key at only <em>s &lt; 1</em>, one competing write can lower confidence but cannot win. This preset writes the
+          overlapping key twice so accumulated mass can beat the decayed original. Interference needs repetition or decay,
+          not just similarity — the earlier version of this page overstated that, and the stream was rebuilt to match.
+        </li>
+        <li>Low-dimensional keys exaggerate interference; real models use higher capacity and learned geometries.</li>
+        <li>The toy ignores sparsity, inhibition, and scale-free connectivity that BDH emphasizes.</li>
+        <li>Soft attention in a KV cache can also bleed; the left panel uses sharp nearest-key retrieval to show the <em>allocation</em> difference cleanly.</li>
+        <li>Published BDH results and this simulation are different evidence levels — do not treat one as the other.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Sixty-second test</h2>
+      <ol>
+        <li>Leave similarity at 0.72. Read the green/red theory banner first — it should already predict WRONG — then confirm synaptic <strong>BLUE</strong>, KV <strong>RED</strong>.</li>
+        <li>Drag similarity down through the live <em>s*</em> value. The banner and the synaptic label should flip together.</li>
+        <li>Land on 0.10. Both sides read RED. Sweep η at 0.72: answer stays BLUE (η cancels).</li>
+        <li>Raise γ and watch <em>s*</em> fall — decay makes the fixed state fail earlier. Then explain the claim in your own words.</li>
+      </ol>
+      <p class="muted">
+        The crossover is a property of this preset, not a universal constant. For this stream it is exactly
+        <em>s* = u<sup>4</sup> / (u<sup>2</sup> + 1)</em> with <em>u = 1 − γ</em>: 0.500 at γ = 0, 0.388 at γ = 0.08,
+        0.203 at γ = 0.25. Raising decay makes the fixed state fail <em>earlier</em>, because the original trace fades
+        faster than the repeated ones. Changing <strong>η</strong> moves nothing — it scales both traces equally, so the
+        two sides cross at the same place. Try it: the answer at 0.72 stays BLUE at every η.
+      </p>
+    </section>
+
+    <section>
+      <h2>Sources (2022–2026+)</h2>
+      <table>
+        <thead>
+          <tr><th>Source</th><th>Role in this explainer</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="https://arxiv.org/abs/2509.26507" target="_blank" rel="noopener">Dragon Hatchling / BDH</a></td>
+            <td>Primary: synaptic / Hebbian working memory in a post-Transformer architecture.</td>
+          </tr>
+          <tr>
+            <td><a href="https://arxiv.org/abs/2608.09888" target="_blank" rel="noopener">BDH-CQ technical report</a></td>
+            <td>Primary: distinguish recurrent-state adaptation from weight updates at inference.</td>
+          </tr>
+          <tr>
+            <td><a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noopener">LoRA (Hu et al., 2022)</a></td>
+            <td>Contrast: low-rank <em>parameter</em> adaptation vs temporary fast synaptic state.</td>
+          </tr>
+          <tr>
+            <td><a href="https://arxiv.org/abs/2312.00752" target="_blank" rel="noopener">Mamba (Gu & Dao, 2023)</a></td>
+            <td>Contrast: selective SSM state — related long-context idea, different mechanism; PS forbids calling BDH a Mamba SSM.</td>
+          </tr>
+          <tr>
+            <td><a href="https://arxiv.org/abs/2404.07143" target="_blank" rel="noopener">xLSTM (Beck et al., 2024)</a></td>
+            <td>Recent recurrent / memory revival for long sequences; comparison point for fixed-state memory.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      DataForge 2026 Pathway submission · team think loop (solo) ·
+      AI-assisted coding disclosed in README · equations verified against primary papers before claims were written.
+    </footer>
+  </div>
+
+  <script>
+    const DIM = 8;
+    const COLORS = {
+      RED:   [1, 0, 0],
+      BLUE:  [0, 0, 1],
+      GREEN: [0, 1, 0],
+    };
+    // Stream order carries the lesson. A→RED is written once, early. The
+    // overlapping key B is written twice, later. Past a similarity of about
+    // 0.39 the two decayed B traces outweigh the decayed A trace, so probing A
+    // returns BLUE: the wrong association, not merely a less confident one.
+    const FACTS = [
+      { id: "f1", label: "A→RED", keyName: "A", valueName: "RED" },
+      { id: "f2", label: "C→GREEN", keyName: "C", valueName: "GREEN" },
+      { id: "f3", label: "B→BLUE", keyName: "B", valueName: "BLUE" },
+      { id: "f4", label: "C→GREEN", keyName: "C", valueName: "GREEN" },
+      { id: "f5", label: "B→BLUE", keyName: "B", valueName: "BLUE" },
+      { id: "f6", label: "C→GREEN", keyName: "C", valueName: "GREEN" },
+    ];
+
+    const state = {
+      written: [],
+      kv: [],
+      W: zeros(DIM, DIM),
+      autoTimer: null,
+      autoIndex: 0,
+    };
+
+    function zeros(r, c) {
+      return Array.from({ length: r }, () => Array(c).fill(0));
+    }
+    function dot(a, b) {
+      let s = 0;
+      for (let i = 0; i < a.length; i++) s += a[i] * b[i];
+      return s;
+    }
+    function norm(a) {
+      return Math.sqrt(dot(a, a)) || 1e-9;
+    }
+    function scale(a, s) {
+      return a.map(x => x * s);
+    }
+    function add(a, b) {
+      return a.map((x, i) => x + b[i]);
+    }
+    function normalize(a) {
+      const n = norm(a);
+      return a.map(x => x / n);
+    }
+    function outer(k, v) {
+      const M = zeros(v.length, k.length);
+      for (let i = 0; i < v.length; i++) {
+        for (let j = 0; j < k.length; j++) M[i][j] = v[i] * k[j];
+      }
+      return M;
+    }
+    function matVec(M, q) {
+      return M.map(row => dot(row, q));
+    }
+    function matScale(M, s) {
+      return M.map(row => row.map(x => x * s));
+    }
+    function matAdd(A, B) {
+      return A.map((row, i) => row.map((x, j) => x + B[i][j]));
+    }
+
+    function basisKey(name, similarity) {
+      // A is e0-ish, B interpolates toward A, C is orthogonal-ish
+      const e0 = Array(DIM).fill(0); e0[0] = 1;
+      const e1 = Array(DIM).fill(0); e1[1] = 1;
+      const e2 = Array(DIM).fill(0); e2[2] = 1;
+      if (name === "A") return normalize(e0);
+      if (name === "C") return normalize(e2);
+      // B: blend toward A
+      const s = similarity;
+      return normalize(add(scale(e0, s), scale(e1, Math.sqrt(Math.max(1e-6, 1 - s * s)))));
+    }
+
+    function valueVec(name) {
+      // embed RGB into first 3 dims
+      const v = Array(DIM).fill(0);
+      const rgb = COLORS[name];
+      v[0] = rgb[0]; v[1] = rgb[1]; v[2] = rgb[2];
+      return v;
+    }
+
+    // Value dimensions are disjoint (RED→0, GREEN→1, BLUE→2) and every Hebbian
+    // write adds a non-negative amount, so the read-out is a mixture. Reporting
+    // shares of that mixture keeps the winner and the runner-up both visible.
+    function decodeColor(vec) {
+      const parts = [
+        { name: "RED", mass: Math.max(0, vec[0]) },
+        { name: "GREEN", mass: Math.max(0, vec[1]) },
+        { name: "BLUE", mass: Math.max(0, vec[2]) },
+      ];
+      const total = parts.reduce((s, p) => s + p.mass, 0);
+      if (total < 1e-9) {
+        return { name: "none", share: 0, runnerUp: null, parts };
+      }
+      const ranked = parts.slice().sort((a, b) => b.mass - a.mass);
+      return {
+        name: ranked[0].name,
+        share: ranked[0].mass / total,
+        runnerUp: ranked[1].mass > 1e-9 ? ranked[1] : null,
+        runnerUpShare: ranked[1].mass / total,
+        parts,
+      };
+    }
+
+    function clearMemories() {
+      state.written = [];
+      state.kv = [];
+      state.W = zeros(DIM, DIM);
+      state.autoIndex = 0;
+      render();
+    }
+
+    function writeFact(fact) {
+      const sim = Number(document.getElementById("similarity").value) / 100;
+      const eta = Number(document.getElementById("eta").value) / 100;
+      const gamma = Number(document.getElementById("gamma").value) / 100;
+      const k = basisKey(fact.keyName, sim);
+      const v = valueVec(fact.valueName);
+
+      state.kv.push({ key: k, value: v, label: fact.label, keyName: fact.keyName, valueName: fact.valueName });
+      state.W = matAdd(matScale(state.W, 1 - gamma), matScale(outer(k, v), eta));
+      state.written.push(fact);
+      render();
+    }
+
+    function kvRetrieve(q) {
+      if (!state.kv.length) return Array(DIM).fill(0);
+      let best = state.kv[0];
+      let bestScore = -Infinity;
+      for (const item of state.kv) {
+        const s = dot(item.key, q);
+        if (s > bestScore) { bestScore = s; best = item; }
+      }
+      return best.value.slice();
+    }
+
+    function synRetrieve(q) {
+      return matVec(state.W, q);
+    }
+
+    function renderChips() {
+      const el = document.getElementById("chips");
+      el.innerHTML = "";
+      if (!state.written.length) {
+        el.innerHTML = '<span class="chip">empty</span>';
+        return;
+      }
+      state.written.forEach((f, i) => {
+        const s = document.createElement("span");
+        s.className = "chip" + (i === state.written.length - 1 ? " active" : "");
+        s.textContent = f.label;
+        el.appendChild(s);
+      });
+    }
+
+    function drawKV(ctx) {
+      const w = ctx.canvas.width, h = ctx.canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#fafafa";
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#4a5c52";
+      ctx.font = "14px IBM Plex Mono, monospace";
+      ctx.fillText(`slots: ${state.kv.length} (grows with stream)`, 12, 22);
+
+      const slotW = 52, slotH = 70, startX = 20, y = 60;
+      state.kv.forEach((item, i) => {
+        const x = startX + i * (slotW + 10);
+        if (x + slotW > w - 10) return;
+        ctx.fillStyle = "#d7e8f3";
+        ctx.strokeStyle = "#1f5f8b";
+        ctx.lineWidth = 2;
+        ctx.fillRect(x, y, slotW, slotH);
+        ctx.strokeRect(x, y, slotW, slotH);
+        ctx.fillStyle = "#1f5f8b";
+        ctx.font = "12px IBM Plex Mono, monospace";
+        ctx.fillText(item.keyName, x + 18, y + 28);
+        ctx.fillText(item.valueName.slice(0, 3), x + 12, y + 50);
+      });
+      if (!state.kv.length) {
+        ctx.fillStyle = "#9aa59d";
+        ctx.fillText("no slots yet", 20, 100);
+      }
+    }
+
+    function drawSyn(ctx) {
+      const w = ctx.canvas.width, h = ctx.canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#fafafa";
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#4a5c52";
+      ctx.font = "14px IBM Plex Mono, monospace";
+      ctx.fillText(`W shape: ${DIM}×${DIM} (fixed)`, 12, 22);
+
+      const cell = Math.min(18, Math.floor((Math.min(w, h) - 50) / DIM));
+      const ox = 20, oy = 44;
+      let maxAbs = 1e-6;
+      for (let i = 0; i < DIM; i++) for (let j = 0; j < DIM; j++) maxAbs = Math.max(maxAbs, Math.abs(state.W[i][j]));
+      for (let i = 0; i < DIM; i++) {
+        for (let j = 0; j < DIM; j++) {
+          const v = state.W[i][j] / maxAbs;
+          const pos = Math.max(0, v);
+          const neg = Math.max(0, -v);
+          const r = Math.floor(250 - neg * 120);
+          const g = Math.floor(245 - pos * 90 - neg * 40);
+          const b = Math.floor(240 - pos * 140);
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx.fillRect(ox + j * cell, oy + i * cell, cell - 1, cell - 1);
+        }
+      }
+      ctx.fillStyle = "#8a3b12";
+      ctx.font = "12px IBM Plex Mono, monospace";
+      ctx.fillText("darker = stronger synapse", ox, oy + DIM * cell + 18);
+    }
+
+    function readout(el, estimate, truthName, kind) {
+      const dec = decodeColor(estimate);
+      const ok = dec.name === truthName;
+      const mixture = dec.runnerUp
+        ? `${dec.name} ${(dec.share * 100).toFixed(0)}% / ${dec.runnerUp.name} ${(dec.runnerUpShare * 100).toFixed(0)}%`
+        : `${dec.name} ${(dec.share * 100).toFixed(0)}%`;
+      const verdict = ok
+        ? "recovered the right association"
+        : `retrieved the WRONG association (truth ${truthName})`;
+      el.innerHTML = `
+        <div class="truth-row">estimate: <strong>${dec.name}</strong></div>
+        <div class="truth-row">truth: <strong>${truthName}</strong></div>
+        <div class="truth-row">mixture: ${mixture}</div>
+        <div class="truth-row ${ok ? "gap-ok" : "gap-bad"}">${kind}: ${verdict}</div>
+        <div class="truth-row">memory cost: ${kind === "KV" ? state.kv.length + " slots" : DIM + "×" + DIM + " fixed"}</div>
+      `;
+    }
+
+    function crossoverS(gamma) {
+      const u = 1 - gamma;
+      return (u * u * u * u) / (u * u + 1);
+    }
+
+    function updatePredict(sim, gamma, probeName) {
+      const el = document.getElementById("predict");
+      const sStar = crossoverS(gamma);
+      if (probeName !== "A" || state.written.length < FACTS.length) {
+        el.className = "predict";
+        el.innerHTML = `Theory locked to cue <strong>A</strong> after the full preset.<br/>
+          <span class="formula">s* = u⁴/(u²+1), u=1−γ → s*=${sStar.toFixed(3)} at γ=${gamma.toFixed(2)}. Current s=${sim.toFixed(2)}.</span>`;
+        return;
+      }
+      const predictsWrong = sim > sStar + 1e-9;
+      el.className = "predict " + (predictsWrong ? "wrong" : "right");
+      el.innerHTML = predictsWrong
+        ? `Theory prediction: synaptic should retrieve the <strong>WRONG</strong> association (BLUE) for cue A.<br/>
+           <span class="formula">s=${sim.toFixed(2)} &gt; s*=${sStar.toFixed(3)} (γ=${gamma.toFixed(2)}). η cancels — it cannot move s*.</span>`
+        : `Theory prediction: synaptic should <strong>recover RED</strong> for cue A.<br/>
+           <span class="formula">s=${sim.toFixed(2)} ≤ s*=${sStar.toFixed(3)} (γ=${gamma.toFixed(2)}). Drag s across s* to falsify the claim.</span>`;
+    }
+
+    function updateMassBars(synEst) {
+      const box = document.getElementById("massBars");
+      const masses = [
+        Math.max(0, synEst[0]),
+        Math.max(0, synEst[1]),
+        Math.max(0, synEst[2]),
+      ];
+      const max = Math.max(1e-9, ...masses);
+      box.hidden = false;
+      document.getElementById("massRed").style.width = (100 * masses[0] / max) + "%";
+      document.getElementById("massBlue").style.width = (100 * masses[2] / max) + "%";
+      document.getElementById("massGreen").style.width = (100 * masses[1] / max) + "%";
+      document.getElementById("massRedVal").textContent = masses[0].toFixed(2);
+      document.getElementById("massBlueVal").textContent = masses[2].toFixed(2);
+      document.getElementById("massGreenVal").textContent = masses[1].toFixed(2);
+    }
+
+    function render() {
+      document.getElementById("similarityVal").textContent = (Number(document.getElementById("similarity").value) / 100).toFixed(2);
+      document.getElementById("etaVal").textContent = (Number(document.getElementById("eta").value) / 100).toFixed(2);
+      document.getElementById("gammaVal").textContent = (Number(document.getElementById("gamma").value) / 100).toFixed(2);
+
+      const sim = Number(document.getElementById("similarity").value) / 100;
+      const gamma = Number(document.getElementById("gamma").value) / 100;
+      const probeName = document.getElementById("probe").value;
+      const truthMap = { A: "RED", B: "BLUE", C: "GREEN" };
+      const q = basisKey(probeName, sim);
+      const kvEst = kvRetrieve(q);
+      const synEst = synRetrieve(q);
+
+      const kvCtx = document.getElementById("kvCanvas").getContext("2d");
+      const synCtx = document.getElementById("synCanvas").getContext("2d");
+      drawKV(kvCtx);
+      drawSyn(synCtx);
+      readout(document.getElementById("kvReadout"), kvEst, truthMap[probeName], "KV");
+      readout(document.getElementById("synReadout"), synEst, truthMap[probeName], "Synaptic");
+      updatePredict(sim, gamma, probeName);
+      updateMassBars(synEst);
+      renderChips();
+    }
+
+    function stopAuto() {
+      if (state.autoTimer) {
+        clearInterval(state.autoTimer);
+        state.autoTimer = null;
+      }
+    }
+
+    function replayPreset() {
+      stopAuto();
+      clearMemories();
+      state.autoIndex = 0;
+      const live = document.querySelector(".live-dot");
+      live.classList.remove("live-dot--idle");
+      live.textContent = "preset stream writing now";
+      state.autoTimer = setInterval(() => {
+        if (state.autoIndex >= FACTS.length) {
+          stopAuto();
+          live.classList.add("live-dot--idle");
+          live.textContent = "preset complete — now drag key similarity";
+          return;
+        }
+        writeFact(FACTS[state.autoIndex]);
+        state.autoIndex += 1;
+      }, 600);
+    }
+
+    document.getElementById("btnReplay").addEventListener("click", replayPreset);
+    document.getElementById("btnStep").addEventListener("click", () => {
+      stopAuto();
+      writeFact(FACTS[state.written.length % FACTS.length]);
+    });
+    document.getElementById("btnReset").addEventListener("click", () => { stopAuto(); clearMemories(); });
+    ["similarity", "eta", "gamma", "probe"].forEach(id => {
+      document.getElementById(id).addEventListener("input", () => {
+        // recompute synaptic from scratch with current hyperparams for fairness when sliders move
+        const facts = state.written.slice();
+        const probe = document.getElementById("probe").value;
+        state.kv = [];
+        state.W = zeros(DIM, DIM);
+        state.written = [];
+        facts.forEach(f => writeFact(f));
+        document.getElementById("probe").value = probe;
+        render();
+      });
+    });
+
+    // Open already running
+    replayPreset();
+  </script>
+</body>
+</html>

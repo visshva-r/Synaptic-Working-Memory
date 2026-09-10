@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Concept Summary — Synaptic Working Memory</title>
+  <style>
+    @page { margin: 18mm; }
+    body { font-family: Georgia, serif; font-size: 11pt; line-height: 1.45; color: #14201a; max-width: 740px; margin: 24px auto; }
+    h1 { font-size: 16pt; margin: 0 0 8px; }
+    h2 { font-size: 12pt; margin: 16px 0 6px; }
+    .meta { font-family: Consolas, monospace; font-size: 9pt; color: #4a5c52; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 10pt; margin: 8px 0; }
+    th, td { border: 1px solid #c9d0c4; padding: 5px 7px; vertical-align: top; }
+    th { background: #eef2ec; }
+    .print { font-family: Consolas, monospace; font-size: 9pt; color: #0f766e; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <p class="print">Print → Save as PDF → upload as one-page concept summary (aim 1 page; shrink to fit if needed).</p>
+  <h1>Synaptic plasticity as short-term memory</h1>
+  <p class="meta">DataForge 2026 · Pathway · Team think loop (solo)<br/>
+  Claim: A fixed-shape synaptic state can process a stream of unbounded length without a new memory slot per token, but similar cues interfere and can retrieve the wrong association.</p>
+
+  <h2>Design pressure</h2>
+  <p>Transformers retain context with a growing key–value cache. Accurate and observable, yet memory scales with length. A recurring alternative is a fixed-size associative state: write into connections (fast weights), read by cue, accept interference as the capacity cost. This summary covers one mechanism—synaptic / Hebbian short-term memory—because Dragon Hatchling (BDH) makes it architectural.</p>
+
+  <h2>Mechanism</h2>
+  <p>Teaching write: <strong>W ← (1−γ)W + η (k ⊗ v)</strong>. Probe q reads v̂ = Wq. Near-colinear keys mix values, but similarity alone is not enough to produce a <em>wrong</em> answer: a cue matches its own key at 1.0 and an overlapping key at only s&lt;1, so one competing write lowers confidence without changing the label. Interference wins when overlapping writes accumulate while the original trace decays. In the artifact's preset, A→RED is written once and early and the overlapping key twice and later; the synaptic read for cue A crosses from RED to BLUE at s* = u⁴/(u²+1) with u = 1−γ (0.39 at default decay), while the KV cache keeps a dedicated slot and stays correct. Write strength η cancels from that expression — a reminder that not every knob is a control variable. The artifact shows truth beside estimate with mixture shares. The simulation is an independent toy—not official BDH weights, and not a Mamba-style SSM (Pathway forbids that classification).</p>
+
+  <h2>BDH and BDH-CQ</h2>
+  <p><strong>BDH</strong> (arXiv:2509.26507): post-Transformer family where reasoning and memory share one fabric; working memory via synaptic plasticity / Hebbian dynamics; sparse non-negative activations and monosemantic synapses reported. Evidence: author-reported paper + educational public toy code.</p>
+  <p><strong>BDH-CQ</strong> (arXiv:2608.09888): same family, different story—demonstrations, latent reasoning without written CoT, recurrent-state adaptation. Comparative, not identical to Hebbian outer-product writes.</p>
+
+  <h2>Landscape</h2>
+  <table>
+    <tr><th>Approach</th><th>Bounded?</th><th>Trade-off</th></tr>
+    <tr><td>Transformer KV</td><td>Cache grows</td><td>Memory/latency with length</td></tr>
+    <tr><td>Fast weights / linear attn</td><td>Often fixed state</td><td>Interference / expressivity</td></tr>
+    <tr><td>Selective SSMs (Mamba)</td><td>Recurrent state</td><td>Different bias than BDH</td></tr>
+    <tr><td>BDH synaptic memory</td><td>Associative wiring</td><td>Interference; external replication still maturing</td></tr>
+  </table>
+
+  <h2>Advantage, weakness, maturity</h2>
+  <p><strong>Advantage:</strong> constant-shape state follows long streams without a new slot per token; associations are inspectable. <strong>Weakness:</strong> interference; toy omits sparsity/inhibition/scale-free connectivity. <strong>Maturity:</strong> active 2022–2026 area; label BDH headline numbers as author-reported unless independently reproduced.</p>
+
+  <h2>Limitation &amp; next reading</h2>
+  <p>Open question: consolidating useful fast state into durable slow weights. Continue: arXiv:2509.26507, arXiv:2608.09888, Pathway “From Attention to Synapses,” “Equations of Reasoning,” github.com/pathwaycom/bdh; contrasts LoRA, Mamba, xLSTM. Artifact: index.html sixty-second test.</p>
+</body>
+</html>

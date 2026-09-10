@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Blog — Synaptic Working Memory · DataForge 2026</title>
+  <style>
+    @page { margin: 18mm; }
+    body { font-family: Georgia, serif; font-size: 11.5pt; line-height: 1.5; color: #14201a; max-width: 720px; margin: 24px auto; }
+    h1 { font-size: 18pt; }
+    h2 { font-size: 13pt; margin-top: 1.2em; }
+    .print { font-family: Consolas, monospace; font-size: 9pt; color: #0f766e; }
+  </style>
+</head>
+<body>
+  <p class="print">Print → Save as PDF → submit as blog PDF.</p>
+  <h1>Making interference visible</h1>
+  <p><em>DataForge 2026 Pathway blog · Team think loop (solo)</em></p>
+
+  <h2>The sentence we are teaching</h2>
+  <p>A fixed-shape synaptic state can absorb a stream of any length without a new memory slot per token — until a similar cue retrieves the wrong fact.</p>
+  <p>That sentence is falsifiable. If raising key similarity never hurts the synaptic probe, the demo is wrong. If lowering similarity never recovers the truth, the demo is also wrong. The lab makes either failure visible in under a minute.</p>
+
+  <h2>Why this topic</h2>
+  <p>The Pathway brief rewards one claim, a behaving substrate, and a real BDH module. Synaptic plasticity as short-term memory is on the approved list and is native to BDH: attention as synaptic memory, Hebbian writes during inference, associations in wiring rather than only in a growing cache.</p>
+
+  <h2>What you do in the artifact</h2>
+  <p>The page opens already writing A→RED, then C→GREEN, B→BLUE, C→GREEN, B→BLUE, C→GREEN.</p>
+  <ul>
+    <li><strong>Left:</strong> Transformer-style KV slots. Memory grows.</li>
+    <li><strong>Right:</strong> Fixed 8×8 matrix with W ← (1−γ)W + η(k⊗v).</li>
+    <li><strong>Probe:</strong> truth beside estimate, plus mixture shares. Move key similarity. Watch the answer change.</li>
+  </ul>
+  <p>At the default similarity of 0.72 the synaptic side answers BLUE to cue A, whose true value is RED, while KV still answers RED. Drag similarity below about 0.39 and the synaptic answer flips back. That flip is the lesson.</p>
+  <p>The first build did not earn that sentence: it wrote A→RED twice, including last, so the self-match always outvoted the interfering write and confidence merely fell from 1.00 to 0.81. Lower confidence is not a wrong association. The stream was rebuilt so A is written once and early while the overlapping key repeats later.</p>
+
+  <h2>BDH, without mythology</h2>
+  <p>We cite Kosowski et al. (arXiv:2509.26507) for synaptic working memory. We cite BDH-CQ (arXiv:2608.09888) so CQ is not flattened into the same slider. We label our matrix a toy. We refuse to call BDH a Mamba SSM. We refuse to present blog figures as live official inference.</p>
+
+  <h2>What we are not claiming</h2>
+  <ul>
+    <li>We did not reproduce Sudoku Extreme or ARC numbers.</li>
+    <li>We did not run official BDH weights.</li>
+    <li>Soft attention can interfere too; KV uses sharp nearest-key retrieval to isolate allocation.</li>
+  </ul>
+
+  <h2>One-minute critique</h2>
+  <ol>
+    <li>Replay at similarity ≈ 0.72, probe A — synaptic should answer BLUE while KV answers RED.</li>
+    <li>Similarity ≈ 0.1 — synaptic should recover RED.</li>
+    <li>Ask where the crossover sits. It is s* = u⁴/(u²+1) with u = 1−γ, and η does not appear — η scales both traces equally. If we could not derive that, we would not own the code.</li>
+  </ol>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# Local / non-public notes (keep out of this repo)
+Pathway PS.pdf
+Rime PS.pdf
+Kharagpur Data Analytics Group Team.pdf
+Details.txt
+ANTIGRAVITY_TEST.md
+SUBMIT.md
+final_audit_report.md
+_make_pdfs.py
+_patch_win.py
+_v.py
+DataForge_Pathway_think-loop.zip
+__pycache__/
+.DS_Store
+Thumbs.db
+.env
+*.log
